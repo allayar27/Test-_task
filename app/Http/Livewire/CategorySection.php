@@ -7,12 +7,19 @@ use Livewire\Component;
 
 class CategorySection extends Component
 {
+
+    protected $listeners = ['deleteConfirmed' => 'delete'];
     public $name;
     public $description;
     public $parent_id;
     public $category_id;
 
+    public $parentCategories;
 
+    public function mount()
+    {
+        $this->parentCategories = Category::query()->orderByDesc('id')->get();
+    }
 
     public function resetForm()
     {
@@ -31,7 +38,7 @@ class CategorySection extends Component
     {
         $this->validate([
             'name' => 'required',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'required|exists:categories,id'
         ]);
 
         Category::create([
@@ -40,7 +47,7 @@ class CategorySection extends Component
             'parent_id' => $this->parent_id
         ]);
 
-        $this->dispatchBrowserEvent('created');
+        $this->dispatchBrowserEvent('created', ['message' => 'category created successfully!']);
 
         $this->resetForm();
         $this->mount();
@@ -65,16 +72,19 @@ class CategorySection extends Component
     {
         $this->validate([
             'name' => 'required',
-            'parent_id' => 'nullable|exists:categories,id'
+            'parent_id' => 'required|exists:categories,id'
         ]);
 
-        Category::where('id', $this->category_id)->update([
+        $category = Category::find($this->category_id);
+       
+        $category->update([
             'name' => $this->name,
             'description' => $this->description,
             'parent_id' => $this->parent_id
         ]);
 
-        $this->dispatchBrowserEvent('updated');
+    
+        $this->dispatchBrowserEvent('updated', ['message' => 'category updated successfully']);
         $this->resetForm();
         
     }
@@ -91,15 +101,17 @@ class CategorySection extends Component
     {
         $category = Category::find($this->category_id);
         $category->delete();
-        $this->dispatchBrowserEvent('deleted', ['message' => 'долг удалено успешно!']);
+        $this->dispatchBrowserEvent('deleted', ['message' => 'category deleted successfully!']);
     }
 
 
     public function render()
     {
         $categories = Category::withCount(['children', 'products'])->get();
+    
         return view('livewire.category-section', [
-            'categories' => $categories
-        ]);
+            'categories' => $categories,
+            
+        ])->extends('layouts.app');
     }
 }
