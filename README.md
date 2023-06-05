@@ -19,7 +19,7 @@
 Приложение построено с использованием следующих технологий:
 
 - PHP 8.1 (backend)
-- Laravel 8.0 (web-framework)
+- Laravel 10 (web-framework)
 - Livewire v.2x 
 - MYSQL 10.7.5 (Database ORM)
 - Bootstrap 5.3 (frontend-library)
